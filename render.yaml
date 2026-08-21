@@ -1,0 +1,49 @@
+# Render Blueprint — GTM Skills Showcase.
+#
+# THIS FILE PROVISIONS REAL, BILLABLE RENDER INFRASTRUCTURE WHEN APPLIED.
+# Committing it to the repo does nothing by itself — it only takes effect
+# if a human explicitly runs Render's "New Blueprint Instance" flow against
+# this repo and confirms the plan. Review every field below before doing
+# that; nothing here is auto-applied.
+#
+# Both resources are pinned to the free tier so nothing here can surprise
+# you with billing. Upgrade the `plan` fields yourself if you need more
+# than the free tier offers (Render's free Postgres also auto-expires
+# after a period of inactivity — fine for a demo, not for anything you
+# need to keep alive unattended).
+#
+# `runtime: python` matches Render's current Blueprint spec at the time
+# this file was written — verify against Render's own Blueprint docs
+# before applying, in case that key has since changed.
+#
+# CORS_ALLOWED_ORIGINS is intentionally left for manual entry (`sync:
+# false`) — the Vercel frontend URL doesn't exist yet at the point this
+# file would first be applied. Fill it in via the Render dashboard once
+# you have it (see README.md's "Production Deployment" section, step 17).
+
+databases:
+  - name: gtm-skills-postgres
+    plan: free
+    databaseName: gtm_skills
+    user: gtm
+
+services:
+  - type: web
+    name: gtm-skills-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gtm-skills-postgres
+          property: connectionString
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false

@@ -46,13 +46,20 @@ def on_startup() -> None:
         return
 
     # Dev-safety net: create tables if `alembic upgrade head` hasn't been run
-    # yet. In a real deploy, Alembic migrations are the source of truth —
-    # this is only a convenience for first-run local dev.
-    try:
-        Base.metadata.create_all(bind=engine)
-    except Exception:
-        logger.exception("[startup] table creation check failed")
-        raise
+    # yet. In production, Alembic migrations are the ONLY source of truth
+    # for schema — create_all is skipped entirely there. Running it in prod
+    # would let the app silently bootstrap a schema straight from the
+    # current models before a human ever runs `alembic upgrade head`,
+    # which then makes that first real migration fail ("relation already
+    # exists") because Alembic never got to create anything itself.
+    if settings.is_production:
+        logger.info("[startup] production — skipping create_all; schema is Alembic-managed")
+    else:
+        try:
+            Base.metadata.create_all(bind=engine)
+        except Exception:
+            logger.exception("[startup] table creation check failed")
+            raise
 
     db = SessionLocal()
     try:
