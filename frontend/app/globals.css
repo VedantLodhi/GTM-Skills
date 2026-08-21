@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Light theme */
+  --background: #f6f7fb;
+  --foreground: #0d1220;
+  --card: #ffffff;
+  --card-foreground: #0d1220;
+  --popover: #ffffff;
+  --popover-foreground: #0d1220;
+
+  --primary: #2f5eff;
+  --primary-foreground: #ffffff;
+  --secondary: #eef1fb;
+  --secondary-foreground: #10162b;
+  --muted: #f1f2f8;
+  --muted-foreground: #64708a;
+  --accent: #0fae87;
+  --accent-foreground: #052e22;
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+
+  --border: #e3e6f0;
+  --input: #eceffb;
+  --ring: #2f5eff;
+  --radius: 0.875rem;
+
+  --success: #16a34a;
+  --success-foreground: #05170c;
+  --warning: #d97706;
+  --warning-foreground: #1c1000;
+  --info: #0ea5e9;
+  --info-foreground: #021621;
+
+  --chart-1: #2f5eff;
+  --chart-2: #0fae87;
+  --chart-3: #d97706;
+  --chart-4: #7c6ff0;
+  --chart-5: #e5484d;
+}
+
+.dark {
+  --background: #05070f;
+  --foreground: #eef1fb;
+  --card: #0d111d;
+  --card-foreground: #eef1fb;
+  --popover: #0d111d;
+  --popover-foreground: #eef1fb;
+
+  --primary: #5b82ff;
+  --primary-foreground: #030712;
+  --secondary: #131829;
+  --secondary-foreground: #dfe4f7;
+  --muted: #131829;
+  --muted-foreground: #8892b0;
+  --accent: #22d3a8;
+  --accent-foreground: #032019;
+  --destructive: #ff5c5c;
+  --destructive-foreground: #ffffff;
+
+  --border: #1c2237;
+  --input: #131829;
+  --ring: #5b82ff;
+
+  --success: #22c55e;
+  --success-foreground: #05170c;
+  --warning: #f59e0b;
+  --warning-foreground: #1c1000;
+  --info: #38bdf8;
+  --info-foreground: #021621;
+
+  --chart-1: #5b82ff;
+  --chart-2: #22d3a8;
+  --chart-3: #f59e0b;
+  --chart-4: #9b8cf7;
+  --chart-5: #ff5c5c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --background: #05070f;
+    --foreground: #eef1fb;
+    --card: #0d111d;
+    --card-foreground: #eef1fb;
+    --popover: #0d111d;
+    --popover-foreground: #eef1fb;
+    --primary: #5b82ff;
+    --primary-foreground: #030712;
+    --secondary: #131829;
+    --secondary-foreground: #dfe4f7;
+    --muted: #131829;
+    --muted-foreground: #8892b0;
+    --accent: #22d3a8;
+    --accent-foreground: #032019;
+    --destructive: #ff5c5c;
+    --destructive-foreground: #ffffff;
+    --border: #1c2237;
+    --input: #131829;
+    --ring: #5b82ff;
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-primary) 30%, transparent);
+}

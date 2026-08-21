@@ -1,0 +1,27 @@
+# GTM Skills Showcase — local Postgres only.
+# Frontend and backend are run directly on the host (npm run dev / uvicorn)
+# for a fast dev loop; only the database is containerized.
+#
+# Usage: docker compose up -d
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: gtm-skills-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gtm
+      POSTGRES_PASSWORD: gtm_dev_password
+      POSTGRES_DB: gtm_skills
+    ports:
+      - "5433:5432"
+    volumes:
+      - gtm_skills_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gtm -d gtm_skills"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  gtm_skills_pgdata:
