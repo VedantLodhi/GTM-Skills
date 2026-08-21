@@ -26,6 +26,14 @@ class NotFoundError(Exception):
     pass
 
 
+class DuplicateError(Exception):
+    """Action would create a duplicate (e.g. a skill already in the workflow)."""
+
+
+class ComingSoonError(Exception):
+    """Action attempted on a skill whose execution_type is 'coming_soon'."""
+
+
 def list_stages(db: Session) -> list[GtmStage]:
     return db.query(GtmStage).order_by(GtmStage.position).all()
 
@@ -36,14 +44,24 @@ def list_skills(
     role: Optional[str] = None,
     category: Optional[str] = None,
     execution_type: Optional[str] = None,
+    status: Optional[str] = None,
+    featured: Optional[bool] = None,
     q: Optional[str] = None,
-) -> list[GtmSkill]:
+    limit: int = 50,
+    offset: int = 0,
+) -> tuple[list[GtmSkill], int]:
+    """Returns (page_of_skills, total_matching_count) — the same filtered
+    query is reused for both, so the count can never drift from the page."""
     query = db.query(GtmSkill).options(joinedload(GtmSkill.stage)).join(GtmStage)
 
     if stage:
         query = query.filter(GtmStage.slug == stage)
     if execution_type:
         query = query.filter(GtmSkill.execution_type == execution_type)
+    if status:
+        query = query.filter(GtmSkill.status == status)
+    if featured is not None:
+        query = query.filter(GtmSkill.is_featured.is_(featured))
     if role:
         # roles is a JSONB array — Postgres containment check.
         query = query.filter(GtmSkill.roles.contains([role]))
@@ -55,7 +73,9 @@ def list_skills(
             or_(GtmSkill.title.ilike(like), GtmSkill.short_description.ilike(like))
         )
 
-    return query.order_by(GtmStage.position, GtmSkill.title).all()
+    total = query.with_entities(func.count(GtmSkill.id)).scalar() or 0
+    items = query.order_by(GtmStage.position, GtmSkill.title).limit(limit).offset(offset).all()
+    return items, int(total)
 
 
 def get_skill_by_slug(db: Session, slug: str) -> GtmSkill:
@@ -110,6 +130,9 @@ def get_collection_by_slug(db: Session, slug: str) -> tuple[GtmCollection, list[
 
 
 def record_run(db: Session, skill: GtmSkill, session_id: str) -> tuple[GtmSkillRun, int]:
+    if skill.execution_type == "coming_soon":
+        raise ComingSoonError(f"Skill '{skill.slug}' is coming soon and can't be run yet")
+
     run = GtmSkillRun(skill_id=skill.id, session_id=session_id)
     db.add(run)
     db.commit()
@@ -131,6 +154,33 @@ def toggle_bookmark(db: Session, skill: GtmSkill, session_id: str) -> bool:
     db.add(GtmSkillBookmark(session_id=session_id, skill_id=skill.id))
     db.commit()
     return True
+
+
+def remove_bookmark(db: Session, skill: GtmSkill, session_id: str) -> bool:
+    """Idempotent delete — returns whether a row was actually removed.
+    Additive alongside toggle_bookmark (used by POST); the existing toggle
+    endpoint is untouched."""
+    existing = (
+        db.query(GtmSkillBookmark)
+        .filter(GtmSkillBookmark.session_id == session_id, GtmSkillBookmark.skill_id == skill.id)
+        .first()
+    )
+    if existing is None:
+        return False
+    db.delete(existing)
+    db.commit()
+    return True
+
+
+def list_bookmarks(db: Session, session_id: str) -> list[GtmSkill]:
+    return (
+        db.query(GtmSkill)
+        .options(joinedload(GtmSkill.stage))
+        .join(GtmSkillBookmark, GtmSkillBookmark.skill_id == GtmSkill.id)
+        .filter(GtmSkillBookmark.session_id == session_id)
+        .order_by(GtmSkillBookmark.created_at.desc())
+        .all()
+    )
 
 
 def get_or_create_workflow(db: Session, session_id: str) -> GtmWorkflow:
@@ -155,14 +205,22 @@ def add_workflow_item(db: Session, session_id: str, skill_id: uuid.UUID, notes: 
         .filter(GtmWorkflowItem.workflow_id == workflow.id, GtmWorkflowItem.skill_id == skill_id)
         .first()
     )
-    if existing is None:
-        next_position = (
-            db.query(func.coalesce(func.max(GtmWorkflowItem.position), -1))
-            .filter(GtmWorkflowItem.workflow_id == workflow.id)
-            .scalar()
-        )
-        db.add(GtmWorkflowItem(workflow_id=workflow.id, skill_id=skill_id, position=next_position + 1, notes=notes))
-        db.commit()
+    if existing is not None:
+        raise DuplicateError("This skill is already in your workflow")
+
+    next_position = (
+        db.query(func.coalesce(func.max(GtmWorkflowItem.position), -1))
+        .filter(GtmWorkflowItem.workflow_id == workflow.id)
+        .scalar()
+    )
+    db.add(GtmWorkflowItem(workflow_id=workflow.id, skill_id=skill_id, position=next_position + 1, notes=notes))
+    db.commit()
+    # get_or_create_workflow() was already called above in this same
+    # session — its `workflow.items` collection is now loaded and stale
+    # relative to the insert just committed. SQLAlchemy won't refresh an
+    # already-loaded collection on a plain re-query, so expire it first or
+    # the response would omit the item that was just added.
+    db.expire_all()
     return get_or_create_workflow(db, session_id)
 
 
@@ -180,6 +238,7 @@ def update_workflow_item(
     if notes is not None:
         item.notes = notes
     db.commit()
+    db.expire_all()  # see add_workflow_item — same stale-collection reason
     return get_or_create_workflow(db, session_id)
 
 
@@ -192,4 +251,5 @@ def delete_workflow_item(db: Session, session_id: str, item_id: uuid.UUID) -> Gt
         raise NotFoundError("Workflow item not found")
     db.delete(item)
     db.commit()
+    db.expire_all()  # see add_workflow_item — same stale-collection reason
     return get_or_create_workflow(db, session_id)

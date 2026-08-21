@@ -19,7 +19,11 @@ import type { SkillDetail } from "@/lib/api/types";
  */
 export function RunSkillPanel({ skill }: { skill: SkillDetail }) {
   const [running, setRunning] = useState(false);
-  const [started, setStarted] = useState(skill.execution_type === "method_only");
+  // Previously method_only skills started with `started=true`, skipping the
+  // "Run this skill" button entirely — handleRun (which calls the backend
+  // and increments run_count) was never invoked for them. All runnable
+  // types (native/assisted/method_only) now go through the same click.
+  const [started, setStarted] = useState(false);
   const [runCount, setRunCount] = useState<number | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [inputValues, setInputValues] = useState<Record<number, string>>({});

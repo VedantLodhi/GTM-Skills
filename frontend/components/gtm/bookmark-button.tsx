@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { toggleBookmark } from "@/lib/api/skills";
+import { getBookmarks, toggleBookmark } from "@/lib/api/skills";
 import { ApiError } from "@/lib/api/base";
 
 export function BookmarkButton({ slug }: { slug: string }) {
@@ -12,7 +12,29 @@ export function BookmarkButton({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
 
-  useEffect(() => setReady(true), []);
+  // Hydrate the real bookmark state from the server on mount — the button
+  // previously always started at `false`, so a bookmarked skill would show
+  // "Bookmark" again after a reload even though the server-side bookmark
+  // still existed. `ready` stays false until this resolves, so the button
+  // renders as a disabled placeholder (same pattern as before) instead of
+  // flashing "Bookmark" and then flipping to "Bookmarked".
+  useEffect(() => {
+    let cancelled = false;
+    getBookmarks()
+      .then((bookmarks) => {
+        if (!cancelled) setBookmarked(bookmarks.some((b) => b.slug === slug));
+      })
+      .catch(() => {
+        // Non-fatal — worst case the button starts as "Bookmark" until the
+        // next toggle; don't block the page on this.
+      })
+      .finally(() => {
+        if (!cancelled) setReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
 
   const handleClick = async () => {
     setLoading(true);

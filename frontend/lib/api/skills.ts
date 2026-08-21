@@ -61,6 +61,10 @@ export function toggleBookmark(slug: string) {
   });
 }
 
+export function getBookmarks() {
+  return apiFetch<SkillListItem[]>("/api/bookmarks", { headers: sessionHeaders() });
+}
+
 export function getWorkflow() {
   return apiFetch<Workflow>("/api/workflow", { headers: sessionHeaders() });
 }

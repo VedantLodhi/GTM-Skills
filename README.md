@@ -31,7 +31,16 @@ alembic upgrade head
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 API docs: http://127.0.0.1:8000/docs — skills/collections/stages are seeded
-automatically on startup (idempotent, safe to restart).
+automatically on startup (idempotent, safe to restart — re-running the seed
+never creates duplicates).
+
+**Backend tests** (separate `gtm_skills_test` database, auto-created on
+first run inside the same Postgres container — no extra infra):
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest -v
+```
 
 **3. Frontend**
 ```bash
@@ -63,6 +72,19 @@ gtm-skills-showcase/
     ├── components/ui/            # self-built primitives
     └── lib/api/                  # typed API client
 ```
+
+## API
+
+All routes live under `/api/*` (`GET /health` also works unprefixed, kept
+for backward compatibility). `GET /api/skills` supports `stage`, `role`,
+`category`, `execution_type`, `status`, `featured`, `q`, `page`, `limit` —
+the response body stays a plain array (so the existing frontend client
+needs no changes); pagination metadata is returned as response headers
+(`X-Total-Count`, `X-Page`, `X-Limit`, `X-Total-Pages`) instead of wrapping
+the body. `POST /api/skills/{slug}/bookmark` toggles on/off (unchanged);
+`DELETE /api/skills/{slug}/bookmark` and `GET /api/bookmarks` are additive.
+Adding a skill already in the workflow returns `409`; running a
+`coming_soon` skill returns `409`.
 
 ## What's real vs. simplified
 

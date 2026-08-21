@@ -3,6 +3,7 @@
 Standalone demo project. No OutMate imports, no shared infrastructure.
 """
 import logging
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,6 +38,13 @@ logger.info("GTM Skills router registered")
 
 @app.on_event("startup")
 def on_startup() -> None:
+    # Test isolation: tests/conftest.py sets this before importing the app
+    # so TestClient(app) never touches the real dev database — the test
+    # suite bootstraps and seeds its own gtm_skills_test database instead.
+    if os.getenv("SKIP_DB_BOOTSTRAP", "").lower() == "true":
+        logger.info("[startup] SKIP_DB_BOOTSTRAP=true — skipping table creation and seed")
+        return
+
     # Dev-safety net: create tables if `alembic upgrade head` hasn't been run
     # yet. In a real deploy, Alembic migrations are the source of truth —
     # this is only a convenience for first-run local dev.
