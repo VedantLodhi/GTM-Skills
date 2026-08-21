@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Circle, Play, Sparkles, Clock } from "lucide-react";
+import { CheckCircle2, Circle, Play, Sparkles, Clock, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,13 +16,14 @@ import type { SkillDetail } from "@/lib/api/types";
  * gtm_skill_runs row) that unlocks a deterministic, structured walkthrough
  * built from the skill's own inputs/workflow_steps/outputs — there is no
  * LLM call. Framing changes by execution_type; mechanics stay identical.
+ *
+ * Imported skills (gtm-skills/gtm) carry `content_body` instead of
+ * workflow_steps/inputs/outputs — a raw copy-paste prompt template, not a
+ * numbered walkthrough. That case is never converted into fake steps; it
+ * gets its own copyable block above the run action.
  */
 export function RunSkillPanel({ skill }: { skill: SkillDetail }) {
   const [running, setRunning] = useState(false);
-  // Previously method_only skills started with `started=true`, skipping the
-  // "Run this skill" button entirely — handleRun (which calls the backend
-  // and increments run_count) was never invoked for them. All runnable
-  // types (native/assisted/method_only) now go through the same click.
   const [started, setStarted] = useState(false);
   const [runCount, setRunCount] = useState<number | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -30,6 +31,7 @@ export function RunSkillPanel({ skill }: { skill: SkillDetail }) {
 
   const isComingSoon = skill.execution_type === "coming_soon";
   const isMethodOnly = skill.execution_type === "method_only";
+  const hasSteps = skill.workflow_steps.length > 0;
 
   const handleRun = async () => {
     setRunning(true);
@@ -48,12 +50,13 @@ export function RunSkillPanel({ skill }: { skill: SkillDetail }) {
   const toggleStep = (i: number) => {
     setCompletedSteps((prev) => {
       const next = new Set(prev);
-      next.has(i) ? next.delete(i) : next.add(i);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
       return next;
     });
   };
 
-  const allDone = completedSteps.size === skill.workflow_steps.length && skill.workflow_steps.length > 0;
+  const allDone = hasSteps && completedSteps.size === skill.workflow_steps.length;
 
   if (isComingSoon) {
     return (
@@ -63,7 +66,7 @@ export function RunSkillPanel({ skill }: { skill: SkillDetail }) {
           <div>
             <p className="font-medium">This skill is coming soon</p>
             <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-              It's planned but not yet available to run in this workspace.
+              It&apos;s planned but not yet available to run in this workspace.
             </p>
           </div>
           <Button variant="secondary" disabled>
@@ -77,6 +80,8 @@ export function RunSkillPanel({ skill }: { skill: SkillDetail }) {
   return (
     <Card>
       <CardContent className="space-y-6 pt-6">
+        {skill.content_body && <PromptTemplateBlock content={skill.content_body} />}
+
         {!started ? (
           <div className="flex flex-col items-start gap-4">
             <div>
@@ -86,12 +91,19 @@ export function RunSkillPanel({ skill }: { skill: SkillDetail }) {
               <p className="mt-1 text-sm text-muted-foreground">
                 {skill.execution_type === "assisted"
                   ? "Pairs with your own tool — walks you through each step with fields to fill in as you go."
-                  : "Walks you through each step below, with fields to fill in as you go."}
+                  : hasSteps
+                    ? "Walks you through each step below, with fields to fill in as you go."
+                    : "Records this as a run — copy the prompt above and use it in your own tool."}
               </p>
             </div>
             <Button onClick={handleRun} loading={running}>
               <Play className="h-4 w-4" /> Run this skill
             </Button>
+          </div>
+        ) : !hasSteps ? (
+          <div className="flex items-center justify-between rounded-lg border border-success/30 bg-success/10 p-4">
+            <p className="text-sm font-medium text-success">Run recorded</p>
+            {runCount !== null && <Badge variant="muted">Run #{runCount}</Badge>}
           </div>
         ) : (
           <div className="space-y-5">
@@ -153,12 +165,42 @@ export function RunSkillPanel({ skill }: { skill: SkillDetail }) {
           </div>
         )}
 
-        {isMethodOnly && (
+        {isMethodOnly && !skill.content_body && (
           <p className="text-xs text-muted-foreground">
             This is a method-only skill — a playbook to follow yourself, not an automated output.
           </p>
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function PromptTemplateBlock({ content }: { content: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      toast.success("Prompt copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Couldn't copy — select and copy the text manually");
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium">Prompt template</p>
+        <Button variant="outline" size="sm" onClick={handleCopy}>
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? "Copied" : "Copy"}
+        </Button>
+      </div>
+      <pre className="max-h-96 overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-muted p-4 font-mono text-xs leading-relaxed text-foreground">
+        {content}
+      </pre>
+    </div>
   );
 }

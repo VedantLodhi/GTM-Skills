@@ -32,7 +32,9 @@ from app.db.base import Base
 EXECUTION_TYPES = ("native", "assisted", "method_only", "coming_soon")
 SKILL_STATUSES = ("beta", "live", "planned")
 
-ROLE_PRESETS = ("SDR", "AE", "RevOps", "Marketing", "Founder", "CS")
+# "Sales Manager" added for the gtm-skills/gtm import — its role-bucketed
+# prompts (salesManagerPrompts) don't fit any of the original 6 presets.
+ROLE_PRESETS = ("SDR", "AE", "RevOps", "Marketing", "Founder", "CS", "Sales Manager")
 CATEGORY_PRESETS = ("Email", "Calls", "Research", "Enablement", "Pricing", "Retention")
 
 
@@ -87,6 +89,20 @@ class GtmSkill(Base):
     icon = Column(String(64), nullable=True)   # lucide-react icon name
     color = Column(String(32), nullable=True)
     is_featured = Column(Boolean, nullable=False, default=False, server_default="false")
+
+    # ── Imported-content fields (gtm-skills/gtm import) ──────────────────
+    # All nullable/additive — stay NULL for the 16 hand-written skills.
+    # content_body holds a raw copy-paste prompt template (source content
+    # has no workflow_steps/inputs/outputs breakdown, so it isn't forced
+    # into those fields — see RunSkillPanel's content_body branch).
+    content_body = Column(Text, nullable=True)
+    # The source record's own id (e.g. "saas-cold-email-1") — the
+    # idempotency key the importer upserts on. Distinct from `slug`
+    # (user/URL-facing) so slug can be hand-tuned later without breaking
+    # re-import matching.
+    source_id = Column(String(160), nullable=True, unique=True, index=True)
+    source_url = Column(String(500), nullable=True)
+    difficulty = Column(String(16), nullable=True)  # beginner | intermediate | advanced
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

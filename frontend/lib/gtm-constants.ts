@@ -1,6 +1,7 @@
 // Mirrors the backend's constant presets (app/db/models/gtm_skill.py) —
 // used to render filter options without an extra round trip.
-export const ROLE_PRESETS = ["SDR", "AE", "RevOps", "Marketing", "Founder", "CS"] as const;
+// "Sales Manager" added for the gtm-skills/gtm import (salesManagerPrompts).
+export const ROLE_PRESETS = ["SDR", "AE", "RevOps", "Marketing", "Founder", "CS", "Sales Manager"] as const;
 
 export const CATEGORY_PRESETS = ["Email", "Calls", "Research", "Enablement", "Pricing", "Retention"] as const;
 

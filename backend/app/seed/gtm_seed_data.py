@@ -27,6 +27,12 @@ STAGES = [
     {"slug": "post-sale-expansion", "name": "Post-Sale & Expansion", "position": 7,
      "description": "Renewals, health checks, and finding the next deal inside an existing account.",
      "color": "#e5484d"},
+    # Fallback stage for imported content with no reliable stage signal —
+    # see backend/app/seed/import_gtm_skills_repo.py's stage-mapping table.
+    # Deliberately NOT used for any hand-written skill above.
+    {"slug": "uncategorized", "name": "Uncategorized", "position": 8,
+     "description": "Imported skills that don't have a clear match to one of the stages above yet.",
+     "color": "#6b7280"},
 ]
 
 SKILLS = [

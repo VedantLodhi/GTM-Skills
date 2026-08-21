@@ -41,6 +41,11 @@ export interface SkillDetail extends SkillListItem {
   workflow_steps: WorkflowStep[];
   outputs: IOField[];
   related_skills: SkillListItem[];
+  // Imported-content fields (gtm-skills/gtm import) — null for the 16
+  // hand-written skills.
+  content_body: string | null;
+  source_url: string | null;
+  difficulty: string | null;
 }
 
 export interface CollectionListItem {

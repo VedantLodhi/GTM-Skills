@@ -66,31 +66,35 @@ export default async function SkillDetailPage({ params }: { params: Promise<{ sl
             <p className="text-sm leading-relaxed text-muted-foreground">{skill.when_to_use}</p>
           </Section>
 
-          <Section title="Inputs">
-            <dl className="space-y-3">
-              {skill.inputs.map((input) => (
-                <div key={input.label}>
-                  <dt className="text-sm font-medium">{input.label}</dt>
-                  <dd className="text-sm text-muted-foreground">{input.description}</dd>
-                </div>
-              ))}
-            </dl>
-          </Section>
+          {skill.inputs.length > 0 && (
+            <Section title="Inputs">
+              <dl className="space-y-3">
+                {skill.inputs.map((input) => (
+                  <div key={input.label}>
+                    <dt className="text-sm font-medium">{input.label}</dt>
+                    <dd className="text-sm text-muted-foreground">{input.description}</dd>
+                  </div>
+                ))}
+              </dl>
+            </Section>
+          )}
 
           <Section title="Run this skill">
             <RunSkillPanel skill={skill} />
           </Section>
 
-          <Section title="Outputs">
-            <dl className="space-y-3">
-              {skill.outputs.map((output) => (
-                <div key={output.label}>
-                  <dt className="text-sm font-medium">{output.label}</dt>
-                  <dd className="text-sm text-muted-foreground">{output.description}</dd>
-                </div>
-              ))}
-            </dl>
-          </Section>
+          {skill.outputs.length > 0 && (
+            <Section title="Outputs">
+              <dl className="space-y-3">
+                {skill.outputs.map((output) => (
+                  <div key={output.label}>
+                    <dt className="text-sm font-medium">{output.label}</dt>
+                    <dd className="text-sm text-muted-foreground">{output.description}</dd>
+                  </div>
+                ))}
+              </dl>
+            </Section>
+          )}
 
           {skill.related_skills.length > 0 && (
             <Section title="Related skills">

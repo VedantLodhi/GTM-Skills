@@ -49,6 +49,11 @@ class SkillDetail(SkillListItem):
     workflow_steps: list[WorkflowStep]
     outputs: list[IOField]
     related_skills: list[SkillListItem] = Field(default_factory=list)
+    # Imported-content fields (gtm-skills/gtm import) — None for the 16
+    # hand-written skills, populated for records the importer created.
+    content_body: Optional[str] = None
+    source_url: Optional[str] = None
+    difficulty: Optional[str] = None
 
 
 class CollectionListItem(BaseModel):

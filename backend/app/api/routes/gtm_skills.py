@@ -83,12 +83,7 @@ def get_skills(
     return items
 
 
-@router.get("/skills/{slug}", response_model=SkillDetail)
-def get_skill_detail(slug: str, db: Session = Depends(get_db)):
-    try:
-        skill = svc.get_skill_by_slug(db, slug)
-    except svc.NotFoundError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+def _build_skill_detail(db: Session, skill) -> SkillDetail:
     related = svc.get_related_skills(db, skill.id)
     return SkillDetail(
         **SkillListItem.model_validate(skill).model_dump(),
@@ -97,7 +92,19 @@ def get_skill_detail(slug: str, db: Session = Depends(get_db)):
         workflow_steps=skill.workflow_steps,
         outputs=skill.outputs,
         related_skills=[SkillListItem.model_validate(s) for s in related],
+        content_body=skill.content_body,
+        source_url=skill.source_url,
+        difficulty=skill.difficulty,
     )
+
+
+@router.get("/skills/{slug}", response_model=SkillDetail)
+def get_skill_detail(slug: str, db: Session = Depends(get_db)):
+    try:
+        skill = svc.get_skill_by_slug(db, slug)
+    except svc.NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    return _build_skill_detail(db, skill)
 
 
 @router.get("/collections", response_model=list[CollectionListItem])
@@ -136,15 +143,7 @@ def run_skill(slug: str, db: Session = Depends(get_db), session_id: str = Depend
         # 409: the request is well-formed, but the skill's current state
         # (coming_soon) conflicts with the "run" action.
         raise HTTPException(status_code=409, detail=str(exc))
-    related = svc.get_related_skills(db, skill.id)
-    detail = SkillDetail(
-        **SkillListItem.model_validate(skill).model_dump(),
-        when_to_use=skill.when_to_use,
-        inputs=skill.inputs,
-        workflow_steps=skill.workflow_steps,
-        outputs=skill.outputs,
-        related_skills=[SkillListItem.model_validate(s) for s in related],
-    )
+    detail = _build_skill_detail(db, skill)
     return RunSkillResponse(skill=detail, run_id=run.id, run_count=run_count)
 
 
