@@ -42,9 +42,9 @@ export function CollectionCard({
 }
 
 /** Dense rail card for the homepage's horizontal collections row — icon
- * inline rather than a banner, single skill-count meta line. Same data
- * (CollectionListItem from the real Collections API), just a tighter
- * layout for a marketplace-style scroll rail. */
+ * inline rather than a banner, real description preview + skill-count
+ * meta line. Same data (CollectionListItem from the real Collections
+ * API), just a tighter layout for a marketplace-style scroll rail. */
 export function CollectionRailCard({
   collection,
   className,
@@ -56,19 +56,24 @@ export function CollectionRailCard({
     <Link
       href={`/collections/${collection.slug}`}
       className={cn(
-        "group block rounded-xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5",
+        "group block rounded-xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5",
         className
       )}
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground">
-        <Layers className="h-5 w-5" />
+      <div className="flex items-center justify-between">
+        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground">
+          <Layers className="h-5 w-5" />
+        </div>
+        <Badge variant="secondary" className="shrink-0">
+          {collection.skill_count} skill{collection.skill_count === 1 ? "" : "s"}
+        </Badge>
       </div>
-      <h3 className="mt-3 font-medium leading-snug group-hover:text-primary transition-colors">
+      <h3 className="mt-4 font-semibold leading-snug group-hover:text-primary transition-colors">
         {collection.name}
       </h3>
-      <p className="mt-1 text-xs text-muted-foreground">
-        {collection.skill_count} skill{collection.skill_count === 1 ? "" : "s"}
-      </p>
+      {collection.description && (
+        <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2">{collection.description}</p>
+      )}
     </Link>
   );
 }

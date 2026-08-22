@@ -21,13 +21,13 @@ function HeaderSearch() {
   };
 
   return (
-    <form onSubmit={submit} className="relative hidden w-full max-w-sm sm:block">
+    <form onSubmit={submit} className="relative hidden w-full max-w-md sm:block">
       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="Search skills…"
-        className="h-9 pl-9"
+        className="h-9 border-transparent bg-secondary/60 pl-9 hover:border-border focus-visible:border-border focus-visible:bg-input"
       />
     </form>
   );
@@ -36,18 +36,18 @@ function HeaderSearch() {
 export function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur-md">
-      <div className="flex h-16 items-center gap-3 px-4 sm:px-6">
+      <div className="flex h-16 items-center gap-4 px-4 sm:px-6">
         <button
           onClick={onOpenMenu}
           aria-label="Open menu"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground lg:hidden"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground lg:hidden"
         >
           <Menu className="h-5 w-5" />
         </button>
 
         <HeaderSearch />
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-3">
           <ThemeToggle />
           <LinkButton href="/skills" size="sm" className="hidden sm:inline-flex">
             Browse Skills

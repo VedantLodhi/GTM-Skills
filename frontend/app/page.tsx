@@ -18,9 +18,12 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* Hero */}
+      {/* Hero — same max-w-7xl content column as every section below it,
+          so the headline's left edge lines up with the stat cards and
+          collection cards rather than sitting in a narrower, re-centered
+          block of its own. */}
       <section className="bg-glow relative overflow-hidden border-b border-border">
-        <div className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
+        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
             <Sparkles className="h-3.5 w-3.5 text-primary" />A structured GTM skills marketplace
           </div>
@@ -54,43 +57,30 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Source strip */}
-      <section className="border-y border-border bg-secondary/30 py-6">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <p className="text-center text-xs font-medium uppercase tracking-widest text-muted-foreground">
-            Built from 16 hand-written GTM skills plus 243 prompts imported from{" "}
-            <a
-              href="https://github.com/gtm-skills/gtm"
-              target="_blank"
-              rel="noreferrer"
-              className="underline underline-offset-2 hover:text-foreground"
-            >
-              gtm-skills/gtm
-            </a>
-          </p>
-        </div>
-      </section>
-
-      {/* Featured collections — dense horizontal rail at every breakpoint */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-        <div className="mb-8 flex items-end justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight">Featured collections</h2>
-            <p className="mt-2 text-muted-foreground">Curated sets built around a specific motion.</p>
+      {/* Featured collections — dense horizontal rail, placed immediately
+          after Stats (Hero → Stats → Featured Collections → Browse by
+          category, uninterrupted) to match the reference's hierarchy. */}
+      <section className="border-t border-border bg-secondary/20">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+          <div className="mb-8 flex items-end justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">Featured collections</h2>
+              <p className="mt-2 text-muted-foreground">Curated sets built around a specific motion.</p>
+            </div>
+            <Link href="/collections" className="hidden text-sm font-medium text-primary hover:underline sm:block">
+              View all
+            </Link>
           </div>
-          <Link href="/collections" className="hidden text-sm font-medium text-primary hover:underline sm:block">
-            View all
-          </Link>
-        </div>
-        <div className="scrollbar-thin flex gap-4 overflow-x-auto pb-2">
-          {collections.map((collection) => (
-            <CollectionRailCard key={collection.id} collection={collection} className="w-56 shrink-0" />
-          ))}
+          <div className="scrollbar-thin flex gap-4 overflow-x-auto pb-2">
+            {collections.map((collection) => (
+              <CollectionRailCard key={collection.id} collection={collection} className="w-64 shrink-0" />
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Browse by category (real GTM stages) */}
-      <section className="border-t border-border bg-secondary/20">
+      <section className="border-t border-border">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
           <div className="mb-8 flex items-end justify-between">
             <h2 className="text-2xl font-semibold tracking-tight">Browse by category</h2>
@@ -103,6 +93,25 @@ export default async function HomePage() {
               <CategoryCard key={stage.id} stage={stage} />
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Source strip — real attribution, moved below the primary
+          hierarchy so it reads as a footnote rather than interrupting
+          Hero → Stats → Collections → Categories. */}
+      <section className="border-t border-border bg-secondary/30 py-6">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <p className="text-center text-xs font-medium uppercase tracking-widest text-muted-foreground">
+            Built from 16 hand-written GTM skills plus 243 prompts imported from{" "}
+            <a
+              href="https://github.com/gtm-skills/gtm"
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              gtm-skills/gtm
+            </a>
+          </p>
         </div>
       </section>
 
