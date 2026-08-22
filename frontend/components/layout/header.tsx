@@ -1,73 +1,59 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Compass, Layers, Sparkles, ListTodo } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Menu, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { LinkButton } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
-const NAV = [
-  { name: "Library", href: "/skills", icon: Compass },
-  { name: "Collections", href: "/collections", icon: Layers },
-  { name: "My Workflow", href: "/workflow", icon: ListTodo },
-];
+/** Header-level quick search — submits into the full discovery experience
+ * on /skills (same `q` param the filter bar there already uses), rather
+ * than duplicating search logic. */
+function HeaderSearch() {
+  const router = useRouter();
+  const [value, setValue] = useState("");
 
-export function Header() {
-  const pathname = usePathname();
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = value.trim();
+    router.push(q ? `/skills?q=${encodeURIComponent(q)}` : "/skills");
+  };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          <span>GTM Skills</span>
-        </Link>
+    <form onSubmit={submit} className="relative hidden w-full max-w-sm sm:block">
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="Search skills…"
+        className="h-9 pl-9"
+      />
+    </form>
+  );
+}
 
-        <nav className="hidden items-center gap-1 sm:flex">
-          {NAV.map((item) => {
-            const active = pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  active ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
+export function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
+  return (
+    <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur-md">
+      <div className="flex h-16 items-center gap-3 px-4 sm:px-6">
+        <button
+          onClick={onOpenMenu}
+          aria-label="Open menu"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground lg:hidden"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
 
-        <div className="flex items-center gap-2">
+        <HeaderSearch />
+
+        <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />
+          <LinkButton href="/skills" size="sm" className="hidden sm:inline-flex">
+            Browse Skills
+          </LinkButton>
         </div>
       </div>
-
-      {/* Mobile nav */}
-      <nav className="flex items-center gap-1 overflow-x-auto border-t border-border px-4 py-2 sm:hidden">
-        {NAV.map((item) => {
-          const active = pathname.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium",
-                active ? "bg-secondary text-foreground" : "text-muted-foreground"
-              )}
-            >
-              <item.icon className="h-4 w-4" />
-              {item.name}
-            </Link>
-          );
-        })}
-      </nav>
     </header>
   );
 }

@@ -11,20 +11,20 @@
   --popover: #ffffff;
   --popover-foreground: #0d1220;
 
-  --primary: #2f5eff;
+  --primary: #4f6bff;
   --primary-foreground: #ffffff;
   --secondary: #eef1fb;
   --secondary-foreground: #10162b;
   --muted: #f1f2f8;
   --muted-foreground: #64708a;
-  --accent: #0fae87;
-  --accent-foreground: #052e22;
+  --accent: #8b5cf6;
+  --accent-foreground: #ffffff;
   --destructive: #e5484d;
   --destructive-foreground: #ffffff;
 
   --border: #e3e6f0;
   --input: #eceffb;
-  --ring: #2f5eff;
+  --ring: #4f6bff;
   --radius: 0.875rem;
 
   --success: #16a34a;
@@ -34,35 +34,46 @@
   --info: #0ea5e9;
   --info-foreground: #021621;
 
-  --chart-1: #2f5eff;
-  --chart-2: #0fae87;
+  --chart-1: #4f6bff;
+  --chart-2: #8b5cf6;
   --chart-3: #d97706;
-  --chart-4: #7c6ff0;
+  --chart-4: #0fae87;
   --chart-5: #e5484d;
+
+  /* Sidebar surface — one notch off the page background */
+  --sidebar: #eef0f8;
+  --sidebar-foreground: #0d1220;
+  --sidebar-border: #e3e6f0;
+
+  /* Headline gradient (light) */
+  --gradient-from: #4f6bff;
+  --gradient-to: #8b5cf6;
 }
 
 .dark {
-  --background: #05070f;
-  --foreground: #eef1fb;
-  --card: #0d111d;
-  --card-foreground: #eef1fb;
-  --popover: #0d111d;
-  --popover-foreground: #eef1fb;
+  /* Deep near-black canvas, card one step lighter — premium dark SaaS,
+     not pure black (keeps depth/hierarchy legible). */
+  --background: #05060a;
+  --foreground: #f1f2fb;
+  --card: #0d0f18;
+  --card-foreground: #f1f2fb;
+  --popover: #0d0f18;
+  --popover-foreground: #f1f2fb;
 
-  --primary: #5b82ff;
-  --primary-foreground: #030712;
-  --secondary: #131829;
-  --secondary-foreground: #dfe4f7;
-  --muted: #131829;
-  --muted-foreground: #8892b0;
-  --accent: #22d3a8;
-  --accent-foreground: #032019;
+  --primary: #6d84ff;
+  --primary-foreground: #05060a;
+  --secondary: #141726;
+  --secondary-foreground: #dfe2f7;
+  --muted: #12141f;
+  --muted-foreground: #8b90ab;
+  --accent: #a78bfa;
+  --accent-foreground: #12081f;
   --destructive: #ff5c5c;
   --destructive-foreground: #ffffff;
 
-  --border: #1c2237;
-  --input: #131829;
-  --ring: #5b82ff;
+  --border: #1c2033;
+  --input: #141726;
+  --ring: #6d84ff;
 
   --success: #22c55e;
   --success-foreground: #05170c;
@@ -71,34 +82,46 @@
   --info: #38bdf8;
   --info-foreground: #021621;
 
-  --chart-1: #5b82ff;
-  --chart-2: #22d3a8;
+  --chart-1: #6d84ff;
+  --chart-2: #a78bfa;
   --chart-3: #f59e0b;
-  --chart-4: #9b8cf7;
+  --chart-4: #2dd4bf;
   --chart-5: #ff5c5c;
+
+  --sidebar: #08090f;
+  --sidebar-foreground: #eef0fb;
+  --sidebar-border: #1c2033;
+
+  --gradient-from: #7c8fff;
+  --gradient-to: #c4a6ff;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
-    --background: #05070f;
-    --foreground: #eef1fb;
-    --card: #0d111d;
-    --card-foreground: #eef1fb;
-    --popover: #0d111d;
-    --popover-foreground: #eef1fb;
-    --primary: #5b82ff;
-    --primary-foreground: #030712;
-    --secondary: #131829;
-    --secondary-foreground: #dfe4f7;
-    --muted: #131829;
-    --muted-foreground: #8892b0;
-    --accent: #22d3a8;
-    --accent-foreground: #032019;
+    --background: #05060a;
+    --foreground: #f1f2fb;
+    --card: #0d0f18;
+    --card-foreground: #f1f2fb;
+    --popover: #0d0f18;
+    --popover-foreground: #f1f2fb;
+    --primary: #6d84ff;
+    --primary-foreground: #05060a;
+    --secondary: #141726;
+    --secondary-foreground: #dfe2f7;
+    --muted: #12141f;
+    --muted-foreground: #8b90ab;
+    --accent: #a78bfa;
+    --accent-foreground: #12081f;
     --destructive: #ff5c5c;
     --destructive-foreground: #ffffff;
-    --border: #1c2237;
-    --input: #131829;
-    --ring: #5b82ff;
+    --border: #1c2033;
+    --input: #141726;
+    --ring: #6d84ff;
+    --sidebar: #08090f;
+    --sidebar-foreground: #eef0fb;
+    --sidebar-border: #1c2033;
+    --gradient-from: #7c8fff;
+    --gradient-to: #c4a6ff;
   }
 }
 
@@ -136,6 +159,9 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -155,4 +181,31 @@ body {
 
 ::selection {
   background: color-mix(in oklab, var(--color-primary) 30%, transparent);
+}
+
+/* Gradient headline accent — used on exactly one phrase in the hero */
+.text-gradient-accent {
+  background: linear-gradient(90deg, var(--gradient-from), var(--gradient-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Subtle radial glow used behind hero/CTA sections — restrained, not neon */
+.bg-glow {
+  background:
+    radial-gradient(600px circle at 15% 0%, color-mix(in oklab, var(--color-primary) 20%, transparent), transparent 60%),
+    radial-gradient(500px circle at 90% 10%, color-mix(in oklab, var(--color-accent) 16%, transparent), transparent 60%);
+}
+
+/* Thin scrollbar for horizontally-scrolling card rails (mobile collections) */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
 }

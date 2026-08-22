@@ -1,8 +1,9 @@
 import { SearchX } from "lucide-react";
-import { getSkills, getStages } from "@/lib/api/skills";
+import { getSkillsPage, getStages } from "@/lib/api/skills";
 import { SkillsFilterBar } from "@/components/gtm/skills-filter-bar";
 import { SkillCard } from "@/components/gtm/skill-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Pagination } from "@/components/ui/pagination";
 
 export const metadata = { title: "Skill Library — GTM Skills" };
 
@@ -12,14 +13,20 @@ export default async function SkillsLibraryPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const [stages, skills] = await Promise.all([
+  const page = Number(params.page) > 0 ? Number(params.page) : 1;
+
+  const [stages, result] = await Promise.all([
     getStages(),
-    getSkills({
+    getSkillsPage({
       stage: params.stage,
       role: params.role,
       category: params.category,
       execution_type: params.execution_type,
+      status: params.status,
+      featured: params.featured === "true" ? true : undefined,
       q: params.q,
+      page,
+      limit: 24,
     }),
   ]);
 
@@ -28,7 +35,7 @@ export default async function SkillsLibraryPage({
       <div className="mb-8">
         <h1 className="text-3xl font-semibold tracking-tight">Skill Library</h1>
         <p className="mt-2 text-muted-foreground">
-          {skills.length} skill{skills.length === 1 ? "" : "s"} across every stage of the GTM funnel.
+          {result.total} skill{result.total === 1 ? "" : "s"} across every stage of the GTM funnel.
         </p>
       </div>
 
@@ -38,18 +45,21 @@ export default async function SkillsLibraryPage({
         </aside>
 
         <section>
-          {skills.length === 0 ? (
+          {result.items.length === 0 ? (
             <EmptyState
               icon={SearchX}
               title="No skills match these filters"
               description="Try clearing a filter or searching a different term."
             />
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {skills.map((skill) => (
-                <SkillCard key={skill.id} skill={skill} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {result.items.map((skill) => (
+                  <SkillCard key={skill.id} skill={skill} />
+                ))}
+              </div>
+              <Pagination page={result.page} totalPages={result.totalPages} total={result.total} limit={result.limit} />
+            </>
           )}
         </section>
       </div>

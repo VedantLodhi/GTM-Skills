@@ -10,9 +10,11 @@ export function ThemeToggle() {
   const [dark, setDark] = useState<boolean | null>(null);
 
   useEffect(() => {
+    // Dark-first: a first-time visitor always sees the dark theme,
+    // regardless of OS preference — an explicit toggle (persisted below)
+    // is the only thing that overrides it afterwards.
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = stored ? stored === "dark" : prefersDark;
+    const isDark = stored ? stored === "dark" : true;
     setDark(isDark);
     document.documentElement.classList.toggle("dark", isDark);
     document.documentElement.classList.toggle("light", !isDark);

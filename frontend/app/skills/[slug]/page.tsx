@@ -33,35 +33,41 @@ export default async function SkillDetailPage({ params }: { params: Promise<{ sl
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <Link
-        href="/skills"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to library
-      </Link>
+    <div>
+      <div className="bg-glow border-b border-border">
+        <div className="mx-auto max-w-5xl px-4 pt-8 sm:px-6">
+          <Link
+            href="/skills"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to library
+          </Link>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-8">
-          <header className="space-y-4">
+          <header className="space-y-4 pb-8">
             <div className="flex items-center gap-3">
               <div
-                className="flex h-12 w-12 items-center justify-center rounded-xl"
+                className="flex h-14 w-14 items-center justify-center rounded-xl"
                 style={{ backgroundColor: `${skill.stage.color}1a`, color: skill.stage.color ?? undefined }}
               >
-                <SkillIcon name={skill.icon} className="h-6 w-6" />
+                <SkillIcon name={skill.icon} className="h-7 w-7" />
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <ExecutionBadge type={skill.execution_type} />
                 <Badge variant="outline" style={{ borderColor: skill.stage.color ?? undefined }}>
                   {skill.stage.name}
                 </Badge>
+                {skill.is_featured && <Badge variant="warning">Featured</Badge>}
               </div>
             </div>
-            <h1 className="text-3xl font-semibold tracking-tight">{skill.title}</h1>
-            <p className="text-lg text-muted-foreground">{skill.short_description}</p>
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{skill.title}</h1>
+            <p className="max-w-2xl text-lg text-muted-foreground">{skill.short_description}</p>
           </header>
+        </div>
+      </div>
 
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
+        <div className="space-y-8">
           <Section title="When to use this">
             <p className="text-sm leading-relaxed text-muted-foreground">{skill.when_to_use}</p>
           </Section>
@@ -145,10 +151,16 @@ export default async function SkillDetailPage({ params }: { params: Promise<{ sl
                 <FactRow label="Status">
                   <span className="text-sm capitalize">{skill.status}</span>
                 </FactRow>
+                {skill.difficulty && (
+                  <FactRow label="Difficulty">
+                    <span className="text-sm capitalize">{skill.difficulty}</span>
+                  </FactRow>
+                )}
               </div>
             </CardContent>
           </Card>
         </aside>
+      </div>
       </div>
     </div>
   );

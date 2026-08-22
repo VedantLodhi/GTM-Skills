@@ -92,5 +92,17 @@ export interface SkillFilters {
   role?: string;
   category?: string;
   execution_type?: string;
+  status?: string;
+  featured?: boolean;
   q?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedSkills {
+  items: SkillListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }

@@ -1,9 +1,10 @@
-import { apiFetch } from "@/lib/api/base";
+import { apiFetch, apiFetchWithHeaders } from "@/lib/api/base";
 import { getSessionId } from "@/lib/session";
 import type {
   BookmarkToggleResponse,
   CollectionDetail,
   CollectionListItem,
+  PaginatedSkills,
   RunSkillResponse,
   SkillDetail,
   SkillFilters,
@@ -18,15 +19,39 @@ export function getStages() {
   return apiFetch<Stage[]>("/api/stages");
 }
 
-export function getSkills(filters: SkillFilters = {}) {
+function skillFilterParams(filters: SkillFilters): URLSearchParams {
   const params = new URLSearchParams();
   if (filters.stage) params.set("stage", filters.stage);
   if (filters.role) params.set("role", filters.role);
   if (filters.category) params.set("category", filters.category);
   if (filters.execution_type) params.set("execution_type", filters.execution_type);
+  if (filters.status) params.set("status", filters.status);
+  if (filters.featured !== undefined) params.set("featured", String(filters.featured));
   if (filters.q) params.set("q", filters.q);
-  const qs = params.toString();
+  if (filters.page) params.set("page", String(filters.page));
+  if (filters.limit) params.set("limit", String(filters.limit));
+  return params;
+}
+
+export function getSkills(filters: SkillFilters = {}) {
+  const qs = skillFilterParams(filters).toString();
   return apiFetch<SkillListItem[]>(`/api/skills${qs ? `?${qs}` : ""}`);
+}
+
+/**
+ * Same endpoint as getSkills, but also surfaces the pagination totals the
+ * backend returns as response headers (X-Total-Count / X-Total-Pages) —
+ * used by the skills discovery page's pager. GET /api/skills' response
+ * body is unchanged either way (a plain array).
+ */
+export async function getSkillsPage(filters: SkillFilters = {}): Promise<PaginatedSkills> {
+  const qs = skillFilterParams(filters).toString();
+  const { data, headers } = await apiFetchWithHeaders<SkillListItem[]>(`/api/skills${qs ? `?${qs}` : ""}`);
+  const total = Number(headers.get("x-total-count") ?? data.length);
+  const page = Number(headers.get("x-page") ?? filters.page ?? 1);
+  const limit = Number(headers.get("x-limit") ?? filters.limit ?? data.length);
+  const totalPages = Number(headers.get("x-total-pages") ?? 1);
+  return { items: data, total, page, limit, totalPages };
 }
 
 export function getSkill(slug: string) {

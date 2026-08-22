@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Star } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ExecutionBadge } from "@/components/gtm/execution-badge";
@@ -8,15 +9,18 @@ import type { SkillListItem } from "@/lib/api/types";
 export function SkillCard({ skill }: { skill: SkillListItem }) {
   return (
     <Link href={`/skills/${skill.slug}`} className="block group">
-      <Card className="h-full transition-all hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5">
+      <Card className="h-full overflow-hidden transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5">
         <CardHeader className="flex-row items-start justify-between gap-3">
           <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
             style={{ backgroundColor: `${skill.stage.color}1a`, color: skill.stage.color ?? undefined }}
           >
             <SkillIcon name={skill.icon} className="h-5 w-5" />
           </div>
-          <ExecutionBadge type={skill.execution_type} />
+          <div className="flex items-center gap-1.5">
+            {skill.is_featured && <Star className="h-4 w-4 fill-warning text-warning" />}
+            <ExecutionBadge type={skill.execution_type} />
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
@@ -34,6 +38,11 @@ export function SkillCard({ skill }: { skill: SkillListItem }) {
                 {role}
               </Badge>
             ))}
+            {skill.status !== "live" && (
+              <Badge variant="warning" className="capitalize">
+                {skill.status}
+              </Badge>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -45,7 +54,7 @@ export function SkillCardSkeleton() {
   return (
     <Card className="h-full">
       <CardHeader className="flex-row items-start justify-between gap-3">
-        <div className="h-10 w-10 rounded-lg bg-muted animate-pulse" />
+        <div className="h-11 w-11 rounded-xl bg-muted animate-pulse" />
         <div className="h-5 w-16 rounded-full bg-muted animate-pulse" />
       </CardHeader>
       <CardContent className="space-y-3">

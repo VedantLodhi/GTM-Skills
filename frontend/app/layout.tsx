@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
-import { Header } from "@/components/layout/header";
+import { AppShell } from "@/components/layout/app-shell";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,15 +20,30 @@ export const metadata: Metadata = {
     "Browse, run, and compose GTM skills — structured playbooks for prospecting, outreach, qualification, and closing.",
 };
 
+// Sets the theme class before first paint (dark-first, unless the visitor
+// already chose light) so switching the default doesn't cause a flash of
+// the wrong theme. Same storage key theme-toggle.tsx reads/writes.
+const THEME_INIT_SCRIPT = `
+(function () {
+  try {
+    var stored = window.localStorage.getItem("gtm-skills-theme");
+    var isDark = stored ? stored === "dark" : true;
+    document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.classList.toggle("light", !isDark);
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-          GTM Skills — a standalone showcase project.
-        </footer>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-full bg-background text-foreground">
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <AppShell>{children}</AppShell>
         <Toaster richColors position="top-right" />
       </body>
     </html>

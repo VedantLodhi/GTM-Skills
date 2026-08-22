@@ -28,33 +28,39 @@ export default async function CollectionDetailPage({ params }: { params: Promise
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <Link
-        href="/collections"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to collections
-      </Link>
+    <div>
+      <div className="bg-glow border-b border-border">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+          <Link
+            href="/collections"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to collections
+          </Link>
 
-      <div className="mb-8 flex items-start gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Layers className="h-6 w-6" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">{collection.name}</h1>
-          {collection.description && <p className="mt-2 text-muted-foreground">{collection.description}</p>}
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground">
+              <Layers className="h-7 w-7" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{collection.name}</h1>
+              {collection.description && <p className="mt-2 max-w-xl text-muted-foreground">{collection.description}</p>}
+            </div>
+          </div>
         </div>
       </div>
 
-      {collection.skills.length === 0 ? (
-        <EmptyState icon={Layers} title="This collection is empty" />
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {collection.skills.map((skill) => (
-            <SkillCard key={skill.id} skill={skill} />
-          ))}
-        </div>
-      )}
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        {collection.skills.length === 0 ? (
+          <EmptyState icon={Layers} title="This collection is empty" />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {collection.skills.map((skill) => (
+              <SkillCard key={skill.id} skill={skill} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

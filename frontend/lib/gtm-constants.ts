@@ -11,3 +11,9 @@ export const EXECUTION_TYPE_PRESETS = [
   { value: "method_only", label: "Method-only" },
   { value: "coming_soon", label: "Coming Soon" },
 ] as const;
+
+export const STATUS_PRESETS = [
+  { value: "live", label: "Live" },
+  { value: "beta", label: "Beta" },
+  { value: "planned", label: "Planned" },
+] as const;
